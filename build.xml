@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<project name="Processing Mode Template" default="install" basedir="./">
+    <description>Template for extending Java Mode tested in Processing 3.0</description>
+
+    <property file="build.properties" />
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - - -->
+    <property name="src" 		value="src" />
+    <property name="build" 		value="build" />
+    <property name="bin" 		value="bin" />
+    <property name="dist" 		value="dist" />
+
+    <path id="library-classpath">
+        <fileset dir="${processing.core}" >
+            <include name="*.jar" />
+        </fileset>
+
+        <fileset dir="${processing.app}" >
+            <include name="*.jar" />
+        </fileset>
+
+        <fileset dir="lib" >
+            <include name="*.jar" />
+        </fileset>
+
+        <!-- JAVA MODE: Include Java source files -->
+        <fileset dir="${processing.java.mode}" >
+            <include name="*.jar" />
+        </fileset>
+
+    </path>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - -
+        BUILD
+    - - - - - - - - - - - - - - - - - - - - - - - -->
+    <target name="build">
+        <propertyfile file="build.number" /> <!-- create the build.number file if it doesn't exist -->
+        <buildnumber file="build.number" />
+
+        <mkdir dir="${build}" />
+
+        <javac srcdir="${src}" destdir="${build}" source="${java.target.version}" includeantruntime="false">
+            <classpath>
+                <path refid="library-classpath"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - -
+        PACKAGE
+    - - - - - - - - - - - - - - - - - - - - - - - -->
+    <target name="package" depends="build">
+        <delete dir="${dist}" />
+        <property name="bundle" value="${dist}/${lib.name}"/>
+        <mkdir dir="${bundle}" />
+        <mkdir dir="${bundle}/mode" />
+
+        <jar jarfile="${bundle}/mode/${lib.name}.jar" basedir="build"/>
+
+        <copy todir="${bundle}">
+            <fileset dir="resources/" />
+        </copy>
+
+        <!-- JAVA MODE: Copy Java theme resources to our extended mode -->
+        <copy file="${processing.java.keywords}" todir="${bundle}" />
+        <copy file="${processing.java.suggestions}" todir="${bundle}" />
+        <copy todir="${bundle}/theme/">
+            <fileset dir="${processing.java.theme}" />
+        </copy>
+
+        <copy todir="${bundle}/mode">
+            <fileset dir="lib/" />
+        </copy>
+
+        <replaceregexp file="${bundle}/mode.properties" flags="g"
+                       match="@@version@@" replace="${build.number}" />
+        <replaceregexp file="${bundle}/mode.properties" flags="g"
+                       match="@@prettyVersion@@" replace="${release}" />
+
+        <!-- Determine the current epoch with JavaScript -->
+        <script language="javascript"><![CDATA[
+            project.setProperty("epoch.now", Date.now());
+        ]]></script>
+        <replaceregexp file="${bundle}/mode.properties" flags="g"
+                       match="@@lastUpdated@@" replace="${epoch.now}" />
+
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - -
+        INSTALL
+    - - - - - - - - - - - - - - - - - - - - - - - -->
+    <target name="install" depends="package" >
+        <delete dir="${processing.modes}/${lib.name}" />
+
+        <copy todir="${processing.modes}/">
+            <fileset dir="${dist}" />
+        </copy>
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - -
+        CLEAN
+    - - - - - - - - - - - - - - - - - - - - - - - -->
+    <target name="clean" >
+        <delete dir="${build}" />
+        <delete dir="${dist}" />
+    </target>
+
+    <!-- - - - - - - - - - - - - - - - - - - - - - -
+        RUN
+    - - - - - - - - - - - - - - - - - - - - - - - -->
+    <target name="run" depends="install">
+        <exec executable="${processing.executable}" spawn="false" />
+    </target>
+</project>
