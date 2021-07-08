@@ -10,8 +10,8 @@ import java.io.File;
  * The main class that contains information about your mode. You can extend
  * {@link Mode} instead if you don't want to make a Java mode.
  */
-public class ProcessingMode extends JavaMode {
-    public ProcessingMode(Base base, File folder) {
+public class HelpfulJavaMode extends JavaMode {
+    public HelpfulJavaMode(Base base, File folder) {
         super(base, folder);
     }
 
@@ -21,7 +21,7 @@ public class ProcessingMode extends JavaMode {
      */
     @Override
     public String getTitle() {
-        return "Processing Mode";
+        return "Helpful Java";
     }
 
     /**

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<project name="Processing Mode Template" default="install" basedir="./">
-    <description>Template for extending Java Mode tested in Processing 3.0</description>
+<project name="Helpful Java Mode" default="install" basedir="./">
+    <description>A Java mode for Processing with more helpful error explanations</description>
 
     <property file="build.properties" />
 
