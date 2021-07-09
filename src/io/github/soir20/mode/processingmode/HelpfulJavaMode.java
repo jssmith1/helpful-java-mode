@@ -1,5 +1,6 @@
 package io.github.soir20.mode.processingmode;
 
+import io.github.soir20.mode.processingmode.ui.HelpfulJavaEditor;
 import processing.app.Base;
 import processing.app.Mode;
 import processing.app.ui.Editor;
