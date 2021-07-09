@@ -2,6 +2,9 @@ package io.github.soir20.mode.processingmode;
 
 import processing.app.Base;
 import processing.app.Mode;
+import processing.app.ui.Editor;
+import processing.app.ui.EditorException;
+import processing.app.ui.EditorState;
 import processing.mode.java.JavaMode;
 
 import java.io.File;
@@ -22,6 +25,11 @@ public class HelpfulJavaMode extends JavaMode {
     @Override
     public String getTitle() {
         return "Helpful Java";
+    }
+
+    @Override
+    public Editor createEditor(Base base, String path, EditorState state) throws EditorException {
+        return new HelpfulJavaEditor(base, path, state, this);
     }
 
     /**
