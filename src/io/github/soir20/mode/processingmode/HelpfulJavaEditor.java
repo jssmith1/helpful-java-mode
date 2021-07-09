@@ -45,6 +45,6 @@ public class HelpfulJavaEditor extends JavaEditor {
             embedPanel.setScene(new Scene(webView));
         });
 
-        footer.addPanel(embedPanel, "Hints", "/lib/footer/hint");
+        footer.addPanel(embedPanel, "Hints", "/theme/footer/hint");
     }
 }
