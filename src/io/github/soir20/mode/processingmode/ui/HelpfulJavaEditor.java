@@ -9,35 +9,14 @@ import processing.app.Problem;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorFooter;
 import processing.app.ui.EditorState;
+import processing.app.ui.EditorToolbar;
 import processing.mode.java.JavaEditor;
-
-import javax.swing.plaf.basic.BasicSplitPaneDivider;
-import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 public class HelpfulJavaEditor extends JavaEditor {
     private WebView webView;
 
     public HelpfulJavaEditor(Base base, String path, EditorState state, Mode mode) throws EditorException {
         super(base, path, state, mode);
-
-        splitPane.setUI(new BasicSplitPaneUI() {
-            public BasicSplitPaneDivider createDefaultDivider() {
-                status = new HelpfulJavaEditorStatus(this, HelpfulJavaEditor.this);
-                return status;
-            }
-
-            // This is copied from processing.app.ui.Editor because we cannot access it directly
-            @Override
-            public void finishDraggingTo(int location) {
-                super.finishDraggingTo(location);
-                // JSplitPane issue: if you only make the lower component visible at
-                // the last minute, its minimum size is ignored.
-                if (location > splitPane.getMaximumDividerLocation()) {
-                    splitPane.setDividerLocation(splitPane.getMaximumDividerLocation());
-                }
-            }
-
-        });
     }
 
     @Override
@@ -50,6 +29,11 @@ public class HelpfulJavaEditor extends JavaEditor {
                 //webView.getEngine().load(currentProblem.getMatchingRefURL());
             }
         });
+    }
+
+    @Override
+    public EditorToolbar createToolbar() {
+        return new HelpfulJavaToolbar(this);
     }
 
     @Override
