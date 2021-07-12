@@ -97,9 +97,9 @@ public class ErrorListener {
                     return URL_ASSEMBLER.getIncorrectVarDeclarationURL(problemNode);
                 }
 
-        /* Incorrect control structures almost always have one of these statements as the
-           problem node, its parent, or its grandparent. Use reflection here instead of regular
-           instanceof to make the code more concise and readable. */
+                /* Incorrect control structures almost always have one of these statements as the
+                   problem node, its parent, or its grandparent. Use reflection here instead of regular
+                   instanceof to make the code more concise and readable. */
                 Class<?>[] statementClasses = {ForStatement.class, TryStatement.class, DoStatement.class,
                         SwitchStatement.class, IfStatement.class, EnhancedForStatement.class, WhileStatement.class};
                 ASTNode[] nearbyNodes = {problemNode, parent, grandparent};
@@ -107,8 +107,8 @@ public class ErrorListener {
                     for (Class<?> statementClass : statementClasses) {
                         if (statementClass.isInstance(node)) {
 
-              /* Issues with control structures are most likely integer-related,
-                 and the type isn't usually given in the problem arguments. */
+                      /* Issues with control structures are most likely integer-related,
+                         and the type isn't usually given in the problem arguments. */
                             return URL_ASSEMBLER.getUnexpectedTokenURL("int");
 
                         }
