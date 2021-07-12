@@ -128,6 +128,7 @@ public class HelpfulJavaEditor extends JavaEditor {
             webView = new WebView();
             embedPanel.setScene(new Scene(webView));
         });
+        setErrorPage(listener.getLastUrl());
 
         footer.addPanel(embedPanel, "Hints", "/theme/footer/hint");
     }
