@@ -1,5 +1,6 @@
 package io.github.soir20.mode.processingmode.ui;
 
+import io.github.soir20.mode.processingmode.pdex.PreprocessedErrorListener;
 import processing.app.Language;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorButton;
@@ -7,10 +8,16 @@ import processing.mode.java.JavaToolbar;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.function.Consumer;
 
 public class HelpfulJavaToolbar extends JavaToolbar {
-    public HelpfulJavaToolbar(Editor editor) {
+    private final PreprocessedErrorListener LISTENER;
+    private final Consumer<String> UPDATE_PAGE_ACTION;
+
+    public HelpfulJavaToolbar(Editor editor, PreprocessedErrorListener listener, Consumer<String> updatePageAction) {
         super(editor);
+        LISTENER = listener;
+        UPDATE_PAGE_ACTION = updatePageAction;
     }
 
     @Override
@@ -18,7 +25,7 @@ public class HelpfulJavaToolbar extends JavaToolbar {
         EditorButton helpButton = new EditorButton(this, "/lib/toolbar/debug", Language.text("toolbar.debug")) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Hello world");
+                UPDATE_PAGE_ACTION.accept(LISTENER.getLastUrl());
             }
         };
 

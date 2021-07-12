@@ -1,11 +1,11 @@
 package io.github.soir20.mode.processingmode.ui;
 
+import io.github.soir20.mode.processingmode.pdex.PreprocessedErrorListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebView;
 import processing.app.Base;
 import processing.app.Mode;
-import processing.app.Problem;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorFooter;
 import processing.app.ui.EditorState;
@@ -14,26 +14,30 @@ import processing.mode.java.JavaEditor;
 
 public class HelpfulJavaEditor extends JavaEditor {
     private WebView webView;
+    private PreprocessedErrorListener listener;
 
     public HelpfulJavaEditor(Base base, String path, EditorState state, Mode mode) throws EditorException {
         super(base, path, state, mode);
+
+        /* createToolbar is called in the constructor, so we have to let that method
+           create the listener and then register it once the preprocessing service
+           has also been created. */
+        preprocessingService.registerListener(listener::updateAvailablePage);
+        
     }
 
-    @Override
-    public void updateEditorStatus() {
-        super.updateEditorStatus();
-
-        Problem currentProblem = findProblem(textarea.getCaretLine());
+    public void setErrorPage(String url) {
         javafx.application.Platform.runLater(() -> {
-            if (webView != null && currentProblem != null) {
-                //webView.getEngine().load(currentProblem.getMatchingRefURL());
+            if (webView != null) {
+                webView.getEngine().load(url);
             }
         });
     }
 
     @Override
     public EditorToolbar createToolbar() {
-        return new HelpfulJavaToolbar(this);
+        listener = new PreprocessedErrorListener();
+        return new HelpfulJavaToolbar(this, listener, this::setErrorPage);
     }
 
     @Override
