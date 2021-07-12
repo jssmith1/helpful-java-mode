@@ -38,7 +38,7 @@ public class HelpfulJavaToolbar extends JavaToolbar {
      */
     @Override
     public void addModeButtons(Box box, JLabel label) {
-        EditorButton helpButton = new EditorButton(this, "/lib/toolbar/debug", Language.text("toolbar.debug")) {
+        EditorButton helpButton = new EditorButton(this, "/theme/toolbar/help", Language.text("toolbar.debug")) {
             @Override
             public void actionPerformed(ActionEvent event) {
                 UPDATE_PAGE_ACTION.accept(LISTENER.getLastUrl());
