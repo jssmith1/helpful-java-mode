@@ -45,7 +45,7 @@ public class ErrorURLAssembler {
     private final String GLOBAL_PARAMS;
 
     /**
-     * Creates a new URL assembler for MatchingRef.
+     * Creates a new URL assembler.
      * @param embedded      whether the pages will be embedded
      */
     public ErrorURLAssembler(boolean embedded) {

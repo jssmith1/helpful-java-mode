@@ -19,11 +19,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class PreprocessedErrorListener {
+public class ErrorListener {
     private final ErrorURLAssembler URL_ASSEMBLER;
     private String lastUrl;
 
-    public PreprocessedErrorListener() {
+    public ErrorListener() {
         URL_ASSEMBLER = new ErrorURLAssembler(true);
         lastUrl = URL_ASSEMBLER.getDefaultUrl();
     }
@@ -37,11 +37,15 @@ public class PreprocessedErrorListener {
         lastUrl = Arrays.stream(compilerErrors).filter(
                 (error) -> sketch.mapJavaToSketch(error) != PreprocessedSketch.SketchInterval.BEFORE_START
         ).map(
-                (error) -> getMatchingRefURL(error, sketch.compilationUnit)
+                (error) -> getErrorPageUrl(error, sketch.compilationUnit)
         ).filter(Optional::isPresent).findFirst().orElse(Optional.empty()).orElse(URL_ASSEMBLER.getDefaultUrl());
     }
 
-    private Optional<String> getMatchingRefURL(IProblem compilerError, ASTNode ast) {
+    public void updateAvailablePage(String url) {
+        lastUrl = url;
+    }
+
+    private Optional<String> getErrorPageUrl(IProblem compilerError, ASTNode ast) {
         String[] problemArguments = compilerError.getArguments();
         ASTNode problemNode = ASTUtils.getASTNodeAt(
                 ast,

@@ -1,6 +1,6 @@
 package io.github.soir20.mode.processingmode.ui;
 
-import io.github.soir20.mode.processingmode.pdex.PreprocessedErrorListener;
+import io.github.soir20.mode.processingmode.pdex.ErrorListener;
 import processing.app.Language;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorButton;
@@ -11,10 +11,10 @@ import java.awt.event.ActionEvent;
 import java.util.function.Consumer;
 
 public class HelpfulJavaToolbar extends JavaToolbar {
-    private final PreprocessedErrorListener LISTENER;
+    private final ErrorListener LISTENER;
     private final Consumer<String> UPDATE_PAGE_ACTION;
 
-    public HelpfulJavaToolbar(Editor editor, PreprocessedErrorListener listener, Consumer<String> updatePageAction) {
+    public HelpfulJavaToolbar(Editor editor, ErrorListener listener, Consumer<String> updatePageAction) {
         super(editor);
         LISTENER = listener;
         UPDATE_PAGE_ACTION = updatePageAction;
