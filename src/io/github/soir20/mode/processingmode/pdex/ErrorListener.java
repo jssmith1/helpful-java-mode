@@ -19,19 +19,37 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Keeps track of the last error URL when an error is detected.
+ * @author soir20
+ */
 public class ErrorListener {
     private final ErrorURLAssembler URL_ASSEMBLER;
     private String lastUrl;
 
+    /**
+     * Creates a new listener.
+     */
     public ErrorListener() {
         URL_ASSEMBLER = new ErrorURLAssembler(true);
         lastUrl = URL_ASSEMBLER.getDefaultUrl();
     }
 
+    /**
+     * Gets the last error URL sent to the listener. If no URLs have been sent,
+     * the default one from the URL assembler is returned. URLs are already
+     * marked as embedded.
+     * @return the last error URL sent to the listener
+     */
     public String getLastUrl() {
         return lastUrl;
     }
 
+    /**
+     * Sets the available page during preprocessing. Serves as a listener for
+     * the {@link processing.mode.java.pdex.PreprocessingService}.
+     * @param sketch        the preprocessed sketch
+     */
     public void updateAvailablePage(PreprocessedSketch sketch) {
         IProblem[] compilerErrors = sketch.compilationUnit.getProblems();
         lastUrl = Arrays.stream(compilerErrors).filter(
@@ -41,10 +59,20 @@ public class ErrorListener {
         ).filter(Optional::isPresent).findFirst().orElse(Optional.empty()).orElse(URL_ASSEMBLER.getDefaultUrl());
     }
 
+    /**
+     * Sets the available page directly.
+     * @param url       the new available page
+     */
     public void updateAvailablePage(String url) {
         lastUrl = url;
     }
 
+    /**
+     * Gets the URL for an error page based on a preprocessed compiler error.
+     * @param compilerError     the compiler error
+     * @param ast               the abstract syntax tree root
+     * @return the URL for the matching error page or an empty if the error is unknown
+     */
     private Optional<String> getErrorPageUrl(IProblem compilerError, ASTNode ast) {
         String[] problemArguments = compilerError.getArguments();
         ASTNode problemNode = ASTUtils.getASTNodeAt(
@@ -107,8 +135,8 @@ public class ErrorListener {
                     for (Class<?> statementClass : statementClasses) {
                         if (statementClass.isInstance(node)) {
 
-                      /* Issues with control structures are most likely integer-related,
-                         and the type isn't usually given in the problem arguments. */
+                          /* Issues with control structures are most likely integer-related,
+                             and the type isn't usually given in the problem arguments. */
                             return URL_ASSEMBLER.getUnexpectedTokenURL("int");
 
                         }

@@ -16,10 +16,22 @@ import processing.mode.java.JavaEditor;
 
 import java.util.Optional;
 
+/**
+ * A {@link JavaEditor} with an additional tab to display compiler error hints.
+ * @author soir20
+ */
 public class HelpfulJavaEditor extends JavaEditor {
     private WebView webView;
     private ErrorListener listener;
 
+    /**
+     * Creates a new editor.
+     * @param base      base class for main Processing app
+     * @param path      path of the currently-open file
+     * @param state     whether the editor has a new sketch or is reopening an old sketch
+     * @param mode      the mode Processing is currently in
+     * @throws EditorException if there is an issue creating the editor
+     */
     public HelpfulJavaEditor(Base base, String path, EditorState state, Mode mode) throws EditorException {
         super(base, path, state, mode);
 
@@ -30,6 +42,10 @@ public class HelpfulJavaEditor extends JavaEditor {
 
     }
 
+    /**
+     * Sets the page currently displayed in the hints tab.
+     * @param url       the URL to display
+     */
     public void setErrorPage(String url) {
         javafx.application.Platform.runLater(() -> {
             if (webView != null) {
@@ -38,6 +54,10 @@ public class HelpfulJavaEditor extends JavaEditor {
         });
     }
 
+    /**
+     * Updates the available (but not yet shown) error page for on-run errors.
+     * @param err       the exception that occurred when trying to run the sketch
+     */
     @Override
     public void statusError(Exception err) {
         super.statusError(err);
@@ -74,12 +94,22 @@ public class HelpfulJavaEditor extends JavaEditor {
         optionalURL.ifPresent(listener::updateAvailablePage);
     }
 
+    /**
+     * Creates the toolbar for this editor. Called during construction. This is
+     * marked as public in the base class but should not be called anywhere else.
+     * @return the toolbar for this editor
+     */
     @Override
     public EditorToolbar createToolbar() {
         listener = new ErrorListener();
         return new HelpfulJavaToolbar(this, listener, this::setErrorPage);
     }
 
+    /**
+     * Creates the footer for this editor. Called during construction. This is
+     * marked as public in the base class but should not be called anywhere else.
+     * @return the footer for this editor
+     */
     @Override
     public EditorFooter createFooter() {
         EditorFooter footer = super.createFooter();
@@ -87,6 +117,10 @@ public class HelpfulJavaEditor extends JavaEditor {
         return footer;
     }
 
+    /**
+     * Adds the hints tab to this editor's footer.
+     * @param footer    the footer to add the tab to
+     */
     private void addEditorHints(EditorFooter footer) {
         JFXPanel embedPanel = new JFXPanel();
 
@@ -97,4 +131,5 @@ public class HelpfulJavaEditor extends JavaEditor {
 
         footer.addPanel(embedPanel, "Hints", "/theme/footer/hint");
     }
+
 }
