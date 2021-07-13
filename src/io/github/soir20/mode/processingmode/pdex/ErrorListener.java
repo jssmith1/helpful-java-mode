@@ -36,6 +36,14 @@ public class ErrorListener {
     }
 
     /**
+     * Determines whether an error page is available (and is not the default page).
+     * @return whether an error page is available
+     */
+    public boolean hasPage() {
+        return !lastUrl.equals(URL_ASSEMBLER.getDefaultUrl());
+    }
+
+    /**
      * Gets the last error URL sent to the listener. If no URLs have been sent,
      * the default one from the URL assembler is returned. URLs are already
      * marked as embedded.

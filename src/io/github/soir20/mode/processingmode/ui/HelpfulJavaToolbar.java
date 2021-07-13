@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 public class HelpfulJavaToolbar extends JavaToolbar {
     private final ErrorListener LISTENER;
     private final Consumer<String> UPDATE_PAGE_ACTION;
+    private String errorUrl;
 
     /**
      * Creates a new editor toolbar.
@@ -44,13 +45,17 @@ public class HelpfulJavaToolbar extends JavaToolbar {
 
             @Override
             public void actionPerformed(ActionEvent event) {
-                UPDATE_PAGE_ACTION.accept(LISTENER.getLastUrl());
+                String newUrl = LISTENER.getLastUrl();
+                UPDATE_PAGE_ACTION.accept(newUrl);
+                errorUrl = newUrl;
             }
 
             @Override
             public void paintComponent(Graphics graphics) {
                 super.paintComponent(graphics);
-                graphics.drawImage(HIGHLIGHT_IMAGE, 0, 0, getWidth(), getHeight(), this);
+                if (LISTENER.hasPage() && !LISTENER.getLastUrl().equals(errorUrl)) {
+                    graphics.drawImage(HIGHLIGHT_IMAGE, 0, 0, getWidth(), getHeight(), this);
+                }
             }
         };
 
