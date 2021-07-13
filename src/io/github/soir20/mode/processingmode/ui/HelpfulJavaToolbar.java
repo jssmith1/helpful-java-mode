@@ -32,6 +32,7 @@ public class HelpfulJavaToolbar extends JavaToolbar {
     public HelpfulJavaToolbar(Editor editor, ErrorListener listener, Consumer<String> updatePageAction) {
         super(editor);
 
+        // We have to repaint the button to make sure the highlight is shown
         LISTENER = listener;
         LISTENER.addListener((newErrorUrl) -> helpButton.repaint());
 
