@@ -7,6 +7,7 @@ import processing.app.ui.EditorButton;
 import processing.mode.java.JavaToolbar;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.function.Consumer;
 
@@ -39,9 +40,17 @@ public class HelpfulJavaToolbar extends JavaToolbar {
     @Override
     public void addModeButtons(Box box, JLabel label) {
         EditorButton helpButton = new EditorButton(this, "/theme/toolbar/help", Language.text("toolbar.debug")) {
+            private final Image HIGHLIGHT_IMAGE = mode.loadImageX("theme/toolbar/help-highlighted");
+
             @Override
             public void actionPerformed(ActionEvent event) {
                 UPDATE_PAGE_ACTION.accept(LISTENER.getLastUrl());
+            }
+
+            @Override
+            public void paintComponent(Graphics graphics) {
+                super.paintComponent(graphics);
+                graphics.drawImage(HIGHLIGHT_IMAGE, 0, 0, getWidth(), getHeight(), this);
             }
         };
 
