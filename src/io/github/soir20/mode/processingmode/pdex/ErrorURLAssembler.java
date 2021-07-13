@@ -366,7 +366,12 @@ public class ErrorURLAssembler {
      * @return the the URL with path and parameters for the corresponding page
      */
     public Optional<String> getTypeMismatchURL(String providedType, String requiredType, ASTNode problemNode) {
-        String varName = problemNode.toString();
+        Optional<VariableDeclarationFragment> declaration = findDeclarationFragment(problemNode);
+        if (!declaration.isPresent()) {
+            return Optional.empty();
+        }
+
+        String varName = declaration.get().getName().toString();
         return Optional.of(URL + "typemismatch?typeonename=" + trimType(providedType)
                 + "&typetwoname=" + trimType(requiredType)
                 + "&varname=" + varName
