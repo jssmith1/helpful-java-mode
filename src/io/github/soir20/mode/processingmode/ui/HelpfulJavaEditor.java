@@ -21,6 +21,7 @@ import java.util.Optional;
  * @author soir20
  */
 public class HelpfulJavaEditor extends JavaEditor {
+    private JFXPanel hintsPanel;
     private WebView webView;
     private ErrorListener listener;
 
@@ -35,20 +36,25 @@ public class HelpfulJavaEditor extends JavaEditor {
     public HelpfulJavaEditor(Base base, String path, EditorState state, Mode mode) throws EditorException {
         super(base, path, state, mode);
 
+        // Set the default error page but keep the first tab as the console
+        setErrorPage(listener.getLastUrl());
+        footer.setPanel(console);
+
         /* createToolbar is called in the constructor, so we have to let that method
            create the listener and then register it once the preprocessing service
            has also been created. */
         preprocessingService.registerListener(listener::updateAvailablePage);
-
     }
 
     /**
-     * Sets the page currently displayed in the hints tab.
+     * Sets the page currently displayed in the hints tab
+     * and makes the hints tab the active tab.
      * @param url       the URL to display
      */
     public void setErrorPage(String url) {
+        footer.setPanel(hintsPanel);
         javafx.application.Platform.runLater(() -> {
-            if (webView != null) {
+            if (!url.equals(webView.getEngine().getLocation())) {
                 webView.getEngine().load(url);
             }
         });
@@ -122,15 +128,13 @@ public class HelpfulJavaEditor extends JavaEditor {
      * @param footer    the footer to add the tab to
      */
     private void addEditorHints(EditorFooter footer) {
-        JFXPanel embedPanel = new JFXPanel();
+        hintsPanel = new JFXPanel();
+        footer.addPanel(hintsPanel, "Hints", "/theme/footer/hint");
 
         javafx.application.Platform.runLater(() -> {
             webView = new WebView();
-            embedPanel.setScene(new Scene(webView));
+            hintsPanel.setScene(new Scene(webView));
         });
-        setErrorPage(listener.getLastUrl());
-
-        footer.addPanel(embedPanel, "Hints", "/theme/footer/hint");
     }
 
 }
