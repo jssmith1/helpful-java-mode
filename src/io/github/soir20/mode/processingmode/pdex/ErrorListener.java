@@ -15,15 +15,18 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import processing.mode.java.pdex.ASTUtils;
 import processing.mode.java.pdex.PreprocessedSketch;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Keeps track of the last error URL when an error is detected.
  * @author soir20
  */
 public class ErrorListener {
+    private final List<Consumer<String>> LISTENERS;
     private final ErrorURLAssembler URL_ASSEMBLER;
     private String lastUrl;
 
@@ -31,8 +34,18 @@ public class ErrorListener {
      * Creates a new listener.
      */
     public ErrorListener() {
+        LISTENERS = new ArrayList<>();
         URL_ASSEMBLER = new ErrorURLAssembler(true);
         lastUrl = URL_ASSEMBLER.getDefaultUrl();
+    }
+
+    /**
+     * Adds a listener for when the error page changes.
+     * @param listener      a listener that fires when the error page changes
+     *                      with the new page as its parameter
+     */
+    public void addListener(Consumer<String> listener) {
+        LISTENERS.add(listener);
     }
 
     /**
@@ -55,24 +68,29 @@ public class ErrorListener {
 
     /**
      * Sets the available page during preprocessing. Serves as a listener for
-     * the {@link processing.mode.java.pdex.PreprocessingService}.
+     * the {@link processing.mode.java.pdex.PreprocessingService}. Fires all listeners.
      * @param sketch        the preprocessed sketch
      */
     public void updateAvailablePage(PreprocessedSketch sketch) {
         IProblem[] compilerErrors = sketch.compilationUnit.getProblems();
-        lastUrl = Arrays.stream(compilerErrors).filter(
-                (error) -> sketch.mapJavaToSketch(error) != PreprocessedSketch.SketchInterval.BEFORE_START
-        ).map(
-                (error) -> getErrorPageUrl(error, sketch.compilationUnit)
-        ).filter(Optional::isPresent).findFirst().orElse(Optional.empty()).orElse(URL_ASSEMBLER.getDefaultUrl());
+        updateAvailablePage(
+                Arrays.stream(compilerErrors).filter(
+                        (error) -> sketch.mapJavaToSketch(error) != PreprocessedSketch.SketchInterval.BEFORE_START
+                ).map(
+                        (error) -> getErrorPageUrl(error, sketch.compilationUnit)
+                ).filter(Optional::isPresent).findFirst().orElse(Optional.empty()).orElse(URL_ASSEMBLER.getDefaultUrl())
+        );
     }
 
     /**
-     * Sets the available page directly.
+     * Sets the available page directly and fires all listeners.
      * @param url       the new available page
      */
     public void updateAvailablePage(String url) {
-        lastUrl = url;
+        if (!lastUrl.equals(url)) {
+            lastUrl = url;
+            LISTENERS.forEach((listener) -> listener.accept(lastUrl));
+        }
     }
 
     /**

@@ -19,7 +19,9 @@ import java.util.function.Consumer;
 public class HelpfulJavaToolbar extends JavaToolbar {
     private final ErrorListener LISTENER;
     private final Consumer<String> UPDATE_PAGE_ACTION;
-    private String errorUrl;
+    private EditorButton helpButton;
+
+    private String openErrorUrl;
 
     /**
      * Creates a new editor toolbar.
@@ -29,7 +31,10 @@ public class HelpfulJavaToolbar extends JavaToolbar {
      */
     public HelpfulJavaToolbar(Editor editor, ErrorListener listener, Consumer<String> updatePageAction) {
         super(editor);
+
         LISTENER = listener;
+        LISTENER.addListener((newErrorUrl) -> helpButton.repaint());
+
         UPDATE_PAGE_ACTION = updatePageAction;
     }
 
@@ -40,22 +45,22 @@ public class HelpfulJavaToolbar extends JavaToolbar {
      */
     @Override
     public void addModeButtons(Box box, JLabel label) {
-        EditorButton helpButton = new EditorButton(this, "/theme/toolbar/help", Language.text("toolbar.debug")) {
+        helpButton = new EditorButton(this, "/theme/toolbar/help", Language.text("toolbar.debug")) {
             private final Image HIGHLIGHT_IMAGE = mode.loadImageX("theme/toolbar/help-highlighted");
 
             @Override
             public void actionPerformed(ActionEvent event) {
                 String newUrl = LISTENER.getLastUrl();
-                if (!newUrl.equals(errorUrl)) {
+                if (!newUrl.equals(openErrorUrl)) {
                     UPDATE_PAGE_ACTION.accept(newUrl);
-                    errorUrl = newUrl;
+                    openErrorUrl = newUrl;
                 }
             }
 
             @Override
             public void paintComponent(Graphics graphics) {
                 super.paintComponent(graphics);
-                if (LISTENER.hasPage() && !LISTENER.getLastUrl().equals(errorUrl)) {
+                if (LISTENER.hasPage() && !LISTENER.getLastUrl().equals(openErrorUrl)) {
                     graphics.drawImage(HIGHLIGHT_IMAGE, 0, 0, getWidth(), getHeight(), this);
                 }
             }
