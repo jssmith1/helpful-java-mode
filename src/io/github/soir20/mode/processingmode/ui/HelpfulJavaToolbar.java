@@ -60,9 +60,12 @@ public class HelpfulJavaToolbar extends JavaToolbar {
             @Override
             public void paintComponent(Graphics graphics) {
                 super.paintComponent(graphics);
+
+                // This can be called even when the error page hasn't updated, so double check if page updated
                 if (LISTENER.hasPage() && !LISTENER.getLastUrl().equals(openErrorUrl)) {
                     graphics.drawImage(HIGHLIGHT_IMAGE, 0, 0, getWidth(), getHeight(), this);
                 }
+
             }
         };
 
