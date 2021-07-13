@@ -46,8 +46,10 @@ public class HelpfulJavaToolbar extends JavaToolbar {
             @Override
             public void actionPerformed(ActionEvent event) {
                 String newUrl = LISTENER.getLastUrl();
-                UPDATE_PAGE_ACTION.accept(newUrl);
-                errorUrl = newUrl;
+                if (!newUrl.equals(errorUrl)) {
+                    UPDATE_PAGE_ACTION.accept(newUrl);
+                    errorUrl = newUrl;
+                }
             }
 
             @Override
