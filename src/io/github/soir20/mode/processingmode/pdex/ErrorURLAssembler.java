@@ -61,7 +61,7 @@ public class ErrorURLAssembler {
      * @return the default URL for the reference
      */
     public String getDefaultUrl() {
-        return URL;
+        return URL + GLOBAL_PARAMS;
     }
 
     /**
