@@ -7,7 +7,7 @@ import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
-import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -264,7 +264,7 @@ public class ErrorURLAssembler {
         List<String> providedParams = ((List<?>) invocation.arguments()).stream()
                 .map(Object::toString).collect(Collectors.toList());
         List<String> providedParamTypes = ((List<?>) invocation.arguments()).stream().map(
-                (param) -> trimType(((Expression) param).resolveTypeBinding().getName())
+                (param) -> trimType(getClosestExpressionType((ASTNode) param))
         ).collect(Collectors.toList());
         String methodName = invocation.getName().toString();
 
@@ -301,7 +301,7 @@ public class ErrorURLAssembler {
 
         MethodInvocation invocation = (MethodInvocation) parent;
         List<String> providedParamTypes = ((List<?>) invocation.arguments()).stream().map(
-                (param) -> trimType(((Expression) param).resolveTypeBinding().getName())
+                (param) -> trimType(getClosestExpressionType((ASTNode) param))
         ).collect(Collectors.toList());
         List<String> requiredParamTypes = Arrays.stream(
                 invocation.resolveMethodBinding().getParameterTypes()
@@ -474,7 +474,8 @@ public class ErrorURLAssembler {
             methodName = parent.toString();
         }
 
-        String params = "?methodonename=" + methodName;
+        String typeName = getClosestExpressionType(problemNode);
+        String params = "?methodonename=" + methodName + "&typename=" + typeName;
 
         return Optional.of(URL + "syntaxerrorvariabledeclarators" + params + GLOBAL_PARAMS);
     }
@@ -640,7 +641,7 @@ public class ErrorURLAssembler {
                 PrefixExpression.class, InfixExpression.class, PostfixExpression.class,
                 ConditionalExpression.class, InstanceofExpression.class, VariableDeclarationFragment.class,
                 ArrayCreation.class, ArrayAccess.class, ArrayInitializer.class,
-                CastExpression.class, MethodInvocation.class, Assignment.class
+                CastExpression.class, MethodInvocation.class, Assignment.class, ExpressionStatement.class
         };
 
         Map<Class<?>, BiFunction<String, ASTNode, String>> typeGetters = new HashMap<>();
@@ -656,6 +657,7 @@ public class ErrorURLAssembler {
         typeGetters.put(CastExpression.class, this::getTypeFromCastExpression);
         typeGetters.put(MethodInvocation.class, this::getTypeFromMethodInvocation);
         typeGetters.put(Assignment.class, this::getTypeFromAssignment);
+        typeGetters.put(ExpressionStatement.class, this::getTypeFromExpressionStatement);
 
         ASTNode node = problemNode;
         while (node.getParent() != null) {
@@ -825,6 +827,10 @@ public class ErrorURLAssembler {
      */
     private String getTypeFromArrayInitializer(String varName, ASTNode arrayInitializer) {
         ArrayInitializer initializer = (ArrayInitializer) arrayInitializer;
+        if (initializer.resolveTypeBinding() == null) {
+            return "Object";
+        }
+
         return initializer.resolveTypeBinding().getElementType().getName();
     }
 
@@ -847,7 +853,26 @@ public class ErrorURLAssembler {
      */
     private String getTypeFromAssignment(String varName, ASTNode assignmentExpression) {
         Assignment assignment = (Assignment) assignmentExpression;
+        if (assignment.resolveTypeBinding() == null) {
+            return "Object";
+        }
+
         return assignment.resolveTypeBinding().getName();
+    }
+
+    /**
+     * Gets the type of a missing variable from an expression statement.
+     * @param varName                   name of the missing variable
+     * @param expressionStatement       expression statement closest to error
+     * @return the type of the missing variable
+     */
+    private String getTypeFromExpressionStatement(String varName, ASTNode expressionStatement) {
+        ExpressionStatement statement = (ExpressionStatement) expressionStatement;
+        if (statement.getExpression() == null || statement.getExpression().resolveTypeBinding() == null) {
+            return "Object";
+        }
+
+        return statement.getExpression().resolveTypeBinding().getName();
     }
 
     /**
