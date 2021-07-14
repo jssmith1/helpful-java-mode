@@ -117,7 +117,7 @@ public class ErrorListener {
             case IProblem.UndefinedMethod:
                 return URL_ASSEMBLER.getMissingMethodURL(problemNode);
             case IProblem.ParameterMismatch:
-                return URL_ASSEMBLER.getParamMismatchURL(problemNode);
+                return URL_ASSEMBLER.getParamMismatchURL(problemArguments[0], problemNode);
             case IProblem.ShouldReturnValue:
                 return URL_ASSEMBLER.getMissingReturnURL(problemNode);
             case IProblem.TypeMismatch:

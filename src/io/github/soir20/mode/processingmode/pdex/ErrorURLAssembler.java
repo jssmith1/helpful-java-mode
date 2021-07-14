@@ -290,10 +290,11 @@ public class ErrorURLAssembler {
 
     /**
      * Gets the URL for a parameter mismatch in a method call.
+     * @param fileName          sketch where the method resides
      * @param problemNode       node of the AST where the problem occurred
      * @return the the URL with path and parameters for the corresponding page
      */
-    public Optional<String> getParamMismatchURL(ASTNode problemNode) {
+    public Optional<String> getParamMismatchURL(String fileName, ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
         if (!(parent instanceof MethodInvocation)) {
             return Optional.empty();
@@ -319,7 +320,8 @@ public class ErrorURLAssembler {
             return Optional.empty();
         }
 
-        return Optional.of(URL + "parametermismatch?methodname=" + methodName
+        return Optional.of(URL + "parametermismatch?classname=" + fileName
+                + "&methodname=" + methodName
                 + "&methodtypename=" + methodReturnType
                 + "&providedtypes=" + encodedProvidedTypes
                 + "&requiredtypes=" + encodedRequiredTypes
