@@ -1,7 +1,6 @@
 package io.github.soir20.mode.processingmode.ui;
 
 import io.github.soir20.mode.processingmode.pdex.ErrorListener;
-import processing.app.Language;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorButton;
 import processing.mode.java.JavaToolbar;
@@ -46,7 +45,7 @@ public class HelpfulJavaToolbar extends JavaToolbar {
      */
     @Override
     public void addModeButtons(Box box, JLabel label) {
-        helpButton = new EditorButton(this, "/theme/toolbar/help", Language.text("toolbar.debug")) {
+        helpButton = new EditorButton(this, "/theme/toolbar/help", "See hints for compiler errors") {
             private final Image HIGHLIGHT_IMAGE = mode.loadImageX("theme/toolbar/help-highlighted");
 
             @Override
