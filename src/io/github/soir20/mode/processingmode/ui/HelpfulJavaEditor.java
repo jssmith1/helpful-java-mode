@@ -13,8 +13,12 @@ import processing.app.ui.EditorFooter;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
 import processing.mode.java.JavaEditor;
+import processing.mode.java.pdex.PreprocessedSketch;
 
 import java.util.Optional;
+import java.util.function.Consumer;
+
+import static processing.mode.java.JavaMode.errorCheckEnabled;
 
 /**
  * A {@link JavaEditor} with an additional tab to display compiler error hints.
@@ -24,6 +28,7 @@ public class HelpfulJavaEditor extends JavaEditor {
     private JFXPanel hintsPanel;
     private WebView webView;
     private ErrorListener listener;
+    private Consumer<PreprocessedSketch> preprocErrorPageHandler;
 
     /**
      * Creates a new editor.
@@ -43,7 +48,7 @@ public class HelpfulJavaEditor extends JavaEditor {
         /* createToolbar is called in the constructor, so we have to let that method
            create the listener and then register it once the preprocessing service
            has also been created. */
-        preprocessingService.registerListener(listener::updateAvailablePage);
+        updateListenerRegistration();
     }
 
     /**
@@ -108,6 +113,7 @@ public class HelpfulJavaEditor extends JavaEditor {
     @Override
     public EditorToolbar createToolbar() {
         listener = new ErrorListener();
+        preprocErrorPageHandler = listener::updateAvailablePage;
         return new HelpfulJavaToolbar(this, listener, this::setErrorPage);
     }
 
@@ -121,6 +127,33 @@ public class HelpfulJavaEditor extends JavaEditor {
         EditorFooter footer = super.createFooter();
         addEditorHints(footer);
         return footer;
+    }
+
+    /**
+     * Updates the user's preferences and the listener registration.
+     */
+    @Override
+    protected void applyPreferences() {
+        super.applyPreferences();
+        updateListenerRegistration();
+    }
+
+    /**
+     * Registers the listener if error checking is enabled and unregisters it otherwise.
+     * Does nothing if the error checking preference has not changed.
+     */
+    private void updateListenerRegistration() {
+
+        // Some methods (like applyPreferences) are called before the preprocessing service has been initialized
+        if (preprocessingService == null) {
+            return;
+        }
+
+        if (errorCheckEnabled) {
+            preprocessingService.registerListener(preprocErrorPageHandler);
+        } else {
+            preprocessingService.unregisterListener(preprocErrorPageHandler);
+        }
     }
 
     /**
