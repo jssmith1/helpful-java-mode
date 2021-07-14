@@ -8,7 +8,6 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -420,18 +419,7 @@ public class ErrorURLAssembler {
      */
     public Optional<String> getUninitializedVarURL(String varName, ASTNode problemNode) {
         String params = "?varname=" + varName;
-        ASTNode parent = problemNode.getParent();
-
-        Expression expressionNode;
-        if (parent instanceof Expression) {
-            expressionNode = (Expression) parent;
-        } else if (parent instanceof ExpressionStatement) {
-            expressionNode = ((ExpressionStatement) parent).getExpression();
-        } else {
-            return Optional.empty();
-        }
-
-        String type = expressionNode.resolveTypeBinding().getName();
+        String type = getClosestExpressionType(varName, problemNode);
         params += "&typename=" + trimType(type);
 
         return Optional.of(URL + "variablenotinit" + params + GLOBAL_PARAMS);
