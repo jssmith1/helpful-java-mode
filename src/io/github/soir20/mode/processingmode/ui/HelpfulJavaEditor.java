@@ -15,7 +15,12 @@ import processing.app.ui.EditorToolbar;
 import processing.mode.java.JavaEditor;
 import processing.mode.java.pdex.PreprocessedSketch;
 
+import java.awt.*;
 import java.util.Optional;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static processing.mode.java.JavaMode.errorCheckEnabled;
@@ -27,8 +32,11 @@ import static processing.mode.java.JavaMode.errorCheckEnabled;
 public class HelpfulJavaEditor extends JavaEditor {
     private JFXPanel hintsPanel;
     private WebView webView;
+
     private ErrorListener listener;
     private Consumer<PreprocessedSketch> preprocErrorPageHandler;
+    private ScheduledExecutorService scheduler;
+    private volatile ScheduledFuture<?> scheduledUiUpdate;
 
     /**
      * Creates a new editor.
@@ -113,7 +121,14 @@ public class HelpfulJavaEditor extends JavaEditor {
     @Override
     public EditorToolbar createToolbar() {
         listener = new ErrorListener();
-        preprocErrorPageHandler = listener::updateAvailablePage;
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        final int DELAY = 650;
+        preprocErrorPageHandler = (sketch) -> {
+            stopHelpButtonUpdate();
+            Runnable uiUpdater = () -> EventQueue.invokeLater(() -> listener.updateAvailablePage(sketch));
+            scheduledUiUpdate = scheduler.schedule(uiUpdater, DELAY, TimeUnit.MILLISECONDS);
+        };
         return new HelpfulJavaToolbar(this, listener, this::setErrorPage);
     }
 
@@ -153,6 +168,16 @@ public class HelpfulJavaEditor extends JavaEditor {
             preprocessingService.registerListener(preprocErrorPageHandler);
         } else {
             preprocessingService.unregisterListener(preprocErrorPageHandler);
+            stopHelpButtonUpdate();
+        }
+    }
+
+    /**
+     * Cancels the next help button UI update.
+     */
+    private void stopHelpButtonUpdate() {
+        if (scheduledUiUpdate != null) {
+            scheduledUiUpdate.cancel(true);
         }
     }
 
