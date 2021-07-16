@@ -159,7 +159,7 @@ public class ErrorURLAssembler {
         VariableDeclarationFragment fragment = fragmentOptional.get();
 
         String arrName = fragment.getName().toString();
-        String arrType = trimType(fragment.resolveBinding().getType().getElementType().toString());
+        String arrType = trimType(getElementType(fragment.resolveBinding().getType().toString()));
 
         return Optional.of(URL + "incorrectvariabledeclaration?typename=" + arrType
                 + "&foundname=" + arrName + GLOBAL_PARAMS);
@@ -221,7 +221,7 @@ public class ErrorURLAssembler {
             return Optional.empty();
         }
 
-        String arrType = trimType(((ArrayCreation) parent).getType().getElementType().toString());
+        String arrType = trimType(getElementType(((ArrayCreation) parent).getType().toString()));
         String arrName = fragmentOptional.get().getName().toString();
 
         return Optional.of(URL + "incorrectdimensionexpression2?typename=" + arrType
@@ -241,7 +241,7 @@ public class ErrorURLAssembler {
             return Optional.empty();
         }
 
-        String arrType = trimType(((ArrayCreation) parent).getType().getElementType().toString());
+        String arrType = trimType(getElementType(((ArrayCreation) parent).getType().toString()));
         String arrName = fragmentOptional.get().getName().toString();
 
         return Optional.of(URL + "incorrectdimensionexpression3?typename=" + arrType
@@ -526,6 +526,15 @@ public class ErrorURLAssembler {
         }
 
         return type.substring(type.lastIndexOf('.') + 1);
+    }
+
+    /**
+     * Gets an element type from an array type.
+     * @param arrayType     the array type to get the element type from
+     * @return the type of element in the array
+     */
+    private String getElementType(String arrayType) {
+        return arrayType.replaceFirst("\\[]", "");
     }
 
     /**
@@ -870,7 +879,7 @@ public class ErrorURLAssembler {
             return "Object";
         }
 
-        return initializer.resolveTypeBinding().getElementType().getName();
+        return getElementType(initializer.resolveTypeBinding().getName());
     }
 
     /**
