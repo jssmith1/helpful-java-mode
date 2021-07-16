@@ -494,12 +494,7 @@ public class ErrorURLAssembler {
 
         final String DEFAULT_RETURN_TYPE = "void";
         String returnType = findClosestNode(problemNode, MethodInvocation.class).map(
-                (invocation) -> {
-                    if (invocation.resolveMethodBinding() == null) {
-                        return DEFAULT_RETURN_TYPE;
-                    }
-                    return invocation.resolveMethodBinding().getReturnType().getName();
-                }
+                (invocation) -> getClosestExpressionType(invocation.toString(), invocation)
         ).orElse(DEFAULT_RETURN_TYPE);
 
         return Optional.of(URL + "methodcallonwrongtype?methodname=" + methodName
@@ -614,6 +609,7 @@ public class ErrorURLAssembler {
     private <T> Optional<T> findClosestNode(ASTNode problemNode, Class<T> nodeClass) {
         ASTNode node = problemNode;
         while (node != null) {
+            System.out.println(nodeClass.isInstance(node));
             if (nodeClass.isInstance(node)) {
                 return Optional.of(nodeClass.cast(node));
             }
