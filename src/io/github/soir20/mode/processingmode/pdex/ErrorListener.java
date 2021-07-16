@@ -173,6 +173,7 @@ public class ErrorListener {
             case IProblem.ParsingErrorDeleteToken:
                 return URL_ASSEMBLER.getUnexpectedTokenURL(problemArguments[0]);
             case IProblem.NoMessageSendOnBaseType:
+            case IProblem.NoMessageSendOnArrayType:
                 return URL_ASSEMBLER.getMethodCallWrongTypeURL(problemArguments[0], problemArguments[1], problemNode);
         }
 
