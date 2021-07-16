@@ -492,10 +492,21 @@ public class ErrorURLAssembler {
     public Optional<String> getMethodCallWrongTypeURL(String type, String methodName, ASTNode problemNode) {
         String variableName = problemNode.toString();
 
-        final String DEFAULT_RETURN_TYPE = "void";
-        String returnType = findClosestNode(problemNode, MethodInvocation.class).map(
-                (invocation) -> getClosestExpressionType(invocation.toString(), invocation)
-        ).orElse(DEFAULT_RETURN_TYPE);
+        String returnType = "void";
+        Optional<MethodInvocation> incorrectInvocation = findClosestNode(problemNode, MethodInvocation.class);
+
+        if (incorrectInvocation.isPresent()) {
+            ASTNode invocationParent = incorrectInvocation.get().getParent();
+
+            /* An expression statement seems to be a good indicator that there is no return type.
+               It's not extremely important for the return type to be correct since it is not the
+               crux of the compiler error. */
+            if (!(invocationParent instanceof ExpressionStatement) ||
+                    ((ExpressionStatement) invocationParent).getExpression().resolveTypeBinding() != null) {
+                returnType = getClosestExpressionType(incorrectInvocation.get());
+            }
+
+        }
 
         return Optional.of(URL + "methodcallonwrongtype?methodname=" + methodName
                 + "&returntype=" + returnType
@@ -609,7 +620,6 @@ public class ErrorURLAssembler {
     private <T> Optional<T> findClosestNode(ASTNode problemNode, Class<T> nodeClass) {
         ASTNode node = problemNode;
         while (node != null) {
-            System.out.println(nodeClass.isInstance(node));
             if (nodeClass.isInstance(node)) {
                 return Optional.of(nodeClass.cast(node));
             }
