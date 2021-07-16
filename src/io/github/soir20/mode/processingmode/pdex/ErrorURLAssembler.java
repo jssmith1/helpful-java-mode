@@ -5,7 +5,9 @@ import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -14,9 +16,12 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import processing.app.SketchException;
@@ -30,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -264,11 +270,11 @@ public class ErrorURLAssembler {
         List<String> providedParams = ((List<?>) invocation.arguments()).stream()
                 .map(Object::toString).collect(Collectors.toList());
         List<String> providedParamTypes = ((List<?>) invocation.arguments()).stream().map(
-                (param) -> trimType(getClosestExpressionType((ASTNode) param))
+                (param) -> trimType(getClosestExpressionType(((ASTNode) param).getParent()))
         ).collect(Collectors.toList());
         String methodName = invocation.getName().toString();
 
-        String returnType = getClosestExpressionType(invocation);
+        String returnType = getClosestExpressionType(invocation.getParent());
         String dummyCorrectName = "correctName";
 
         String encodedParams;
@@ -410,7 +416,7 @@ public class ErrorURLAssembler {
      * @return the the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingVarURL(String varName, ASTNode problemNode) {
-        String varType = trimType(getClosestExpressionType(varName, problemNode));
+        String varType = trimType(getClosestExpressionType(varName, problemNode.getParent()));
         return Optional.of(URL + "variablenotfound?classname=" + varType + "&varname=" + varName + GLOBAL_PARAMS);
     }
 
@@ -422,7 +428,7 @@ public class ErrorURLAssembler {
      */
     public Optional<String> getUninitializedVarURL(String varName, ASTNode problemNode) {
         String params = "?varname=" + varName;
-        String type = getClosestExpressionType(varName, problemNode);
+        String type = getClosestExpressionType(varName, problemNode.getParent());
         params += "&typename=" + trimType(type);
 
         return Optional.of(URL + "variablenotinit" + params + GLOBAL_PARAMS);
@@ -477,7 +483,7 @@ public class ErrorURLAssembler {
             methodName = parent.toString();
         }
 
-        String typeName = getClosestExpressionType(problemNode);
+        String typeName = getClosestExpressionType(problemNode.getParent());
         String params = "?methodonename=" + methodName + "&typename=" + typeName;
 
         return Optional.of(URL + "syntaxerrorvariabledeclarators" + params + GLOBAL_PARAMS);
@@ -504,7 +510,7 @@ public class ErrorURLAssembler {
                crux of the compiler error. */
             if (!(invocationParent instanceof ExpressionStatement) ||
                     ((ExpressionStatement) invocationParent).getExpression().resolveTypeBinding() != null) {
-                returnType = getClosestExpressionType(incorrectInvocation.get());
+                returnType = getClosestExpressionType(incorrectInvocation.get().getParent());
             }
 
         }
@@ -686,13 +692,6 @@ public class ErrorURLAssembler {
      * @return the type of the variable missing; defaults to "Object"
      */
     private String getClosestExpressionType(String missingVar, ASTNode problemNode) {
-        Class<?>[] supportedExpressions = {
-                PrefixExpression.class, InfixExpression.class, PostfixExpression.class,
-                ConditionalExpression.class, InstanceofExpression.class, VariableDeclarationFragment.class,
-                ArrayCreation.class, ArrayAccess.class, ArrayInitializer.class,
-                CastExpression.class, MethodInvocation.class, Assignment.class, ExpressionStatement.class
-        };
-
         Map<Class<?>, BiFunction<String, ASTNode, String>> typeGetters = new HashMap<>();
         typeGetters.put(PrefixExpression.class, this::getTypeFromPrefixExpression);
         typeGetters.put(InfixExpression.class, this::getTypeFromInfixExpression);
@@ -707,16 +706,22 @@ public class ErrorURLAssembler {
         typeGetters.put(MethodInvocation.class, this::getTypeFromMethodInvocation);
         typeGetters.put(Assignment.class, this::getTypeFromAssignment);
         typeGetters.put(ExpressionStatement.class, this::getTypeFromExpressionStatement);
+        typeGetters.put(CharacterLiteral.class, (name, node) -> "char");
+        typeGetters.put(BooleanLiteral.class, (name, node) -> "boolean");
+        typeGetters.put(NumberLiteral.class, (name, node) -> ((NumberLiteral) node).resolveTypeBinding().getName());
+        typeGetters.put(StringLiteral.class, (name, node) -> "String");
+        typeGetters.put(NullLiteral.class, (name, node) -> "Object");
+
+        Set<Class<?>> supportedExpressions = typeGetters.keySet();
 
         ASTNode node = problemNode;
-        while (node.getParent() != null) {
-            node = node.getParent();
-
+        while (node != null) {
             for (Class<?> expressionType : supportedExpressions) {
                 if (expressionType.isInstance(node)) {
                     return typeGetters.get(expressionType).apply(missingVar, node);
                 }
             }
+            node = node.getParent();
         }
 
         return "Object";
