@@ -386,14 +386,15 @@ public class ErrorURLAssembler {
      * @return the the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingTypeURL(String missingType, ASTNode problemNode) {
+        String varName = "example";
 
         // All variables in the statement will be the same type, so use the first as an example
         Optional<VariableDeclarationFragment> fragmentOptional = findDeclarationFragment(problemNode);
-        if (!fragmentOptional.isPresent()) {
-            return Optional.empty();
+        if (fragmentOptional.isPresent()) {
+            varName = fragmentOptional.get().getName().toString();
         }
 
-        String varName = fragmentOptional.get().getName().toString();
+
         String dummyCorrectName = "CorrectName";
 
         return Optional.of(URL + "typenotfound?classname=" + trimType(missingType)
