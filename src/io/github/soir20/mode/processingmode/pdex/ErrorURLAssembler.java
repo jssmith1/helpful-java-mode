@@ -491,7 +491,19 @@ public class ErrorURLAssembler {
      */
     public Optional<String> getMethodCallWrongTypeURL(String type, String methodName, ASTNode problemNode) {
         String variableName = problemNode.toString();
+
+        final String DEFAULT_RETURN_TYPE = "void";
+        String returnType = findClosestNode(problemNode, MethodInvocation.class).map(
+                (invocation) -> {
+                    if (invocation.resolveMethodBinding() == null) {
+                        return DEFAULT_RETURN_TYPE;
+                    }
+                    return invocation.resolveMethodBinding().getReturnType().getName();
+                }
+        ).orElse(DEFAULT_RETURN_TYPE);
+
         return Optional.of(URL + "methodcallonwrongtype?methodname=" + methodName
+                + "&returntype=" + returnType
                 + "&typename=" + trimType(type)
                 + "&varname" + variableName
                 + GLOBAL_PARAMS);
@@ -590,6 +602,25 @@ public class ErrorURLAssembler {
         declaredArrays.add(declarationStatement.substring(lastCommaIndex + 1));
 
         return declaredArrays;
+    }
+
+    /**
+     * Finds the closest node of a particular type.
+     * @param problemNode       the node to search up from
+     * @param nodeClass         the class of the node to find
+     * @param <T> node type to find
+     * @return the closest node of that class or empty
+     */
+    private <T> Optional<T> findClosestNode(ASTNode problemNode, Class<T> nodeClass) {
+        ASTNode node = problemNode;
+        while (node != null) {
+            if (nodeClass.isInstance(node)) {
+                return Optional.of(nodeClass.cast(node));
+            }
+            node = node.getParent();
+        }
+
+        return Optional.empty();
     }
 
     /**
