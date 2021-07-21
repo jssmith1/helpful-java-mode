@@ -457,14 +457,18 @@ public class ErrorURLAssembler {
     public Optional<String> getStaticErrorURL(String fileName, String nonStaticMethod, ASTNode problemNode) {
         String params = "?methodname=" + nonStaticMethod;
 
-        ASTNode node = problemNode;
-        while (!(node instanceof MethodDeclaration)) {
-            node = node.getParent();
-            if (node == null) return Optional.empty();
+        Optional<MethodDeclaration> declaration = findClosestNode(problemNode, MethodDeclaration.class);
+        Optional<MethodInvocation> invocation = findClosestNode(problemNode, MethodInvocation.class);
+
+        if (declaration.isPresent()) {
+            params += "&staticmethodname=" + declaration.get().getName().toString();
+            params += "&staticmethodreturntype=" + declaration.get().getReturnType2().toString();
         }
 
-        String staticMethod = ((MethodDeclaration) node).getName().toString();
-        params += "&staticmethodname=" + staticMethod;
+        if (invocation.isPresent()) {
+            params += "&methodreturntype=" + invocation.get().resolveMethodBinding().getReturnType().toString();
+        }
+
         params += "&filename=" + fileName;
 
         return Optional.of(URL + "nonstaticfromstatic" + params + GLOBAL_PARAMS);
