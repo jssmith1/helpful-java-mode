@@ -47,18 +47,27 @@ import java.util.stream.IntStream;
  */
 public class ErrorURLAssembler {
     private static final String URL = "http://139.147.9.247/";
-    private final String GLOBAL_PARAMS;
+    private final Map<String, String> GLOBAL_PARAMS;
 
     /**
      * Creates a new URL assembler.
      * @param embedded      whether the pages will be embedded
+     * @param fontSize      the base font size in points to use in the page
      */
-    public ErrorURLAssembler(boolean embedded) {
+    public ErrorURLAssembler(boolean embedded, int fontSize) {
+        GLOBAL_PARAMS = new HashMap<>();
         if (embedded) {
-            GLOBAL_PARAMS = "&embed=true";
-        } else {
-            GLOBAL_PARAMS = "";
+            GLOBAL_PARAMS.put("embed", "true");
+            setFontSize(fontSize);
         }
+    }
+
+    /**
+     * Sets the base font size to use in the page.
+     * @param newSize       the new base font size to use in the page
+     */
+    public void setFontSize(int newSize) {
+        GLOBAL_PARAMS.put("fontsize", String.valueOf(newSize));
     }
 
     /**
@@ -66,7 +75,7 @@ public class ErrorURLAssembler {
      * @return the default URL for the reference
      */
     public String getDefaultUrl() {
-        return URL + GLOBAL_PARAMS.replace('&', '?');
+        return URL + getGlobalParams(true);
     }
 
     /**
@@ -98,7 +107,7 @@ public class ErrorURLAssembler {
         }
 
         return Optional.of(URL + "extraneousclosingcurlybrace?original=" + mismatchedSnippet
-                + "&fixed=" + correctedSnippet + GLOBAL_PARAMS);
+                + "&fixed=" + correctedSnippet + getGlobalParams(false));
     }
 
     /**
@@ -148,7 +157,7 @@ public class ErrorURLAssembler {
         }
 
         return Optional.of(URL + "incorrectvariabledeclaration?typename=" + trimType(arrType.toString())
-                + "&foundname=" + arrName + GLOBAL_PARAMS);
+                + "&foundname=" + arrName + getGlobalParams(false));
     }
 
     /**
@@ -168,7 +177,7 @@ public class ErrorURLAssembler {
         String arrType = trimType(getElementType(fragment.resolveBinding().getType().toString()));
 
         return Optional.of(URL + "incorrectvariabledeclaration?typename=" + arrType
-                + "&foundname=" + arrName + GLOBAL_PARAMS);
+                + "&foundname=" + arrName + getGlobalParams(false));
     }
 
     /**
@@ -193,7 +202,7 @@ public class ErrorURLAssembler {
 
         String methodName = textAboveError.substring(currentCharIndex, lastOpenParenthesisIndex);
 
-        return Optional.of(URL + "incorrectmethoddeclaration?methodname=" + methodName + GLOBAL_PARAMS);
+        return Optional.of(URL + "incorrectmethoddeclaration?methodname=" + methodName + getGlobalParams(false));
     }
 
     /**
@@ -212,7 +221,7 @@ public class ErrorURLAssembler {
 
         return Optional.of(URL + "incorrectdimensionexpression1?typename=" + arrType
                 + "&arrname=" + arrName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -232,7 +241,7 @@ public class ErrorURLAssembler {
 
         return Optional.of(URL + "incorrectdimensionexpression2?typename=" + arrType
                 + "&arrname=" + arrName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -252,7 +261,7 @@ public class ErrorURLAssembler {
 
         return Optional.of(URL + "incorrectdimensionexpression3?typename=" + arrType
                 + "&arrname=" + arrName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -291,7 +300,7 @@ public class ErrorURLAssembler {
                 + "&typename=" + trimType(returnType)
                 + "&providedparams=" + encodedParams
                 + "&providedtypes=" + encodedTypes
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -331,7 +340,7 @@ public class ErrorURLAssembler {
                 + "&methodtypename=" + methodReturnType
                 + "&providedtypes=" + encodedProvidedTypes
                 + "&requiredtypes=" + encodedRequiredTypes
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -362,7 +371,7 @@ public class ErrorURLAssembler {
         return Optional.of(URL + "returnmissing?methodname=" + methodName
                 + "&typename=" + methodReturnType
                 + "&requiredtypes=" + encodedTypes
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -382,7 +391,7 @@ public class ErrorURLAssembler {
         return Optional.of(URL + "typemismatch?typeonename=" + trimType(providedType)
                 + "&typetwoname=" + trimType(requiredType)
                 + "&varname=" + varName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -406,7 +415,7 @@ public class ErrorURLAssembler {
         return Optional.of(URL + "typenotfound?classname=" + trimType(missingType)
                 + "&correctclassname=" + dummyCorrectName
                 + "&varname=" + varName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -417,7 +426,7 @@ public class ErrorURLAssembler {
      */
     public Optional<String> getMissingVarURL(String varName, ASTNode problemNode) {
         String varType = trimType(getClosestExpressionType(varName, problemNode.getParent()));
-        return Optional.of(URL + "variablenotfound?classname=" + varType + "&varname=" + varName + GLOBAL_PARAMS);
+        return Optional.of(URL + "variablenotfound?classname=" + varType + "&varname=" + varName + getGlobalParams(false));
     }
 
     /**
@@ -431,7 +440,7 @@ public class ErrorURLAssembler {
         String type = getClosestExpressionType(varName, problemNode.getParent());
         params += "&typename=" + trimType(type);
 
-        return Optional.of(URL + "variablenotinit" + params + GLOBAL_PARAMS);
+        return Optional.of(URL + "variablenotinit" + params + getGlobalParams(false));
     }
 
     /**
@@ -444,7 +453,7 @@ public class ErrorURLAssembler {
             return Optional.empty();
         }
 
-        return Optional.of(URL + "unexpectedtoken?typename=" + trimType(typeName) + GLOBAL_PARAMS);
+        return Optional.of(URL + "unexpectedtoken?typename=" + trimType(typeName) + getGlobalParams(false));
     }
 
     /**
@@ -471,7 +480,7 @@ public class ErrorURLAssembler {
 
         params += "&filename=" + fileName;
 
-        return Optional.of(URL + "nonstaticfromstatic" + params + GLOBAL_PARAMS);
+        return Optional.of(URL + "nonstaticfromstatic" + params + getGlobalParams(false));
     }
 
     /**
@@ -490,7 +499,7 @@ public class ErrorURLAssembler {
         String typeName = getClosestExpressionType(problemNode.getParent());
         String params = "?methodonename=" + methodName + "&typename=" + typeName;
 
-        return Optional.of(URL + "syntaxerrorvariabledeclarators" + params + GLOBAL_PARAMS);
+        return Optional.of(URL + "syntaxerrorvariabledeclarators" + params + getGlobalParams(false));
     }
 
     /**
@@ -523,7 +532,7 @@ public class ErrorURLAssembler {
                 + "&returntype=" + returnType
                 + "&typename=" + trimType(type)
                 + "&varname" + variableName
-                + GLOBAL_PARAMS);
+                + getGlobalParams(false));
     }
 
     /**
@@ -943,6 +952,21 @@ public class ErrorURLAssembler {
         return IntStream.range(0, chars.length).allMatch(
                 index -> Character.isJavaIdentifierPart(chars[index])
         );
+    }
+
+    /**
+     * Gets the global parameters as URL query parameters.
+     * @param first     whether the global parameters are the first parameters 
+     *                  in the query
+     * @return the global parameters as a URL query string
+     */
+    private String getGlobalParams(boolean first) {
+        String connectedParams = GLOBAL_PARAMS.entrySet().stream().map(
+                (entry) -> entry.getKey() + "=" + entry.getValue()
+        ).collect(Collectors.joining("&"));
+
+        String firstChar = first ? "?" : "&";
+        return firstChar + connectedParams;
     }
 
 }

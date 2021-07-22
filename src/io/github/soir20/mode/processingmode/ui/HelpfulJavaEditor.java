@@ -7,11 +7,13 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebView;
 import processing.app.Base;
 import processing.app.Mode;
+import processing.app.Preferences;
 import processing.app.SketchException;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorFooter;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
+import processing.app.ui.Toolkit;
 import processing.mode.java.JavaEditor;
 import processing.mode.java.pdex.PreprocessedSketch;
 
@@ -33,6 +35,7 @@ public class HelpfulJavaEditor extends JavaEditor {
     private JFXPanel hintsPanel;
     private WebView webView;
 
+    private ErrorURLAssembler urlAssembler;
     private ErrorListener listener;
     private Consumer<PreprocessedSketch> preprocErrorPageHandler;
     private ScheduledExecutorService scheduler;
@@ -86,7 +89,6 @@ public class HelpfulJavaEditor extends JavaEditor {
         }
 
         // Get the error page URL
-        ErrorURLAssembler urlAssembler = new ErrorURLAssembler(true);
         SketchException sketchErr = (SketchException) err;
         String message = err.getMessage();
         Optional<String> optionalURL = Optional.empty();
@@ -120,7 +122,8 @@ public class HelpfulJavaEditor extends JavaEditor {
      */
     @Override
     public EditorToolbar createToolbar() {
-        listener = new ErrorListener();
+        urlAssembler = new ErrorURLAssembler(true, 12);
+        listener = new ErrorListener(urlAssembler);
         scheduler = Executors.newSingleThreadScheduledExecutor();
 
         final int DELAY = 650;
@@ -151,6 +154,7 @@ public class HelpfulJavaEditor extends JavaEditor {
     protected void applyPreferences() {
         super.applyPreferences();
         updateListenerRegistration();
+        urlAssembler.setFontSize(Toolkit.zoom(Preferences.getInteger("console.font.size")));
     }
 
     /**

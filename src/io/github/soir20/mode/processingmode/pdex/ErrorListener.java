@@ -32,10 +32,11 @@ public class ErrorListener {
 
     /**
      * Creates a new listener.
+     * @param urlAssembler  the assembler for error URLs
      */
-    public ErrorListener() {
+    public ErrorListener(ErrorURLAssembler urlAssembler) {
         LISTENERS = new ArrayList<>();
-        URL_ASSEMBLER = new ErrorURLAssembler(true);
+        URL_ASSEMBLER = urlAssembler;
         lastUrl = URL_ASSEMBLER.getDefaultUrl();
     }
 
