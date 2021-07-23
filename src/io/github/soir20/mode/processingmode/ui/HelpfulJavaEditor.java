@@ -14,6 +14,8 @@ import processing.app.ui.EditorFooter;
 import processing.app.ui.EditorState;
 import processing.app.ui.EditorToolbar;
 import processing.app.ui.Toolkit;
+import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.mode.java.JavaEditor;
 import processing.mode.java.pdex.PreprocessedSketch;
 
@@ -155,9 +157,12 @@ public class HelpfulJavaEditor extends JavaEditor {
         super.applyPreferences();
         updateListenerRegistration();
 
-        /* The font size is smaller because of a different DPI in Java apps. See
+        /* The font size is smaller because of a different DPI in Java apps than Windows. See
         https://stackoverflow.com/questions/28659052/font-size-in-jtextpane-looks-smaller-then-in-other-applications */
-        double dpiAdjustment = 72.0 / 96;
+        double dpiAdjustment = 1;
+        if (PApplet.platform == PConstants.WINDOWS) {
+            dpiAdjustment = 72.0 / 96;
+        }
 
         urlAssembler.setFontSize(Toolkit.zoom(
                 (int) Math.round(Preferences.getInteger("console.font.size") * dpiAdjustment)
