@@ -154,7 +154,7 @@ public class HelpfulJavaEditor extends JavaEditor {
     protected void applyPreferences() {
         super.applyPreferences();
         updateListenerRegistration();
-        urlAssembler.setFontSize(Toolkit.zoom(Preferences.getInteger("console.font.size")) * 4 / 3);
+        urlAssembler.setFontSize(Preferences.getInteger("console.font.size") * 4 / 3);
     }
 
     /**
