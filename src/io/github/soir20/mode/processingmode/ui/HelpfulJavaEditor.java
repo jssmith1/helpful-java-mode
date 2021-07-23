@@ -154,7 +154,14 @@ public class HelpfulJavaEditor extends JavaEditor {
     protected void applyPreferences() {
         super.applyPreferences();
         updateListenerRegistration();
-        urlAssembler.setFontSize(Preferences.getInteger("console.font.size") * 4 / 3);
+
+        /* The font size is smaller because of a different DPI in Java apps. See
+        https://stackoverflow.com/questions/28659052/font-size-in-jtextpane-looks-smaller-then-in-other-applications */
+        double dpiAdjustment = 72.0 / 96;
+
+        urlAssembler.setFontSize(Toolkit.zoom(
+                (int) Math.round(Preferences.getInteger("console.font.size") * dpiAdjustment)
+        ));
     }
 
     /**
