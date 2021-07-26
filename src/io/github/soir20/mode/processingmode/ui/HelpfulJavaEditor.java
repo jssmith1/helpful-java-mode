@@ -2,6 +2,7 @@ package io.github.soir20.mode.processingmode.ui;
 
 import io.github.soir20.mode.processingmode.pdex.ErrorURLAssembler;
 import io.github.soir20.mode.processingmode.pdex.ErrorListener;
+import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.web.WebView;
@@ -54,6 +55,9 @@ public class HelpfulJavaEditor extends JavaEditor {
     public HelpfulJavaEditor(Base base, String path, EditorState state, Mode mode) throws EditorException {
         super(base, path, state, mode);
 
+        // If we don't set this, JavaFX will shut down when we change modes and stop loading error pages.
+        Platform.setImplicitExit(false);
+
         // Set the default error page but keep the first tab as the console
         setErrorPage(listener.getLastUrl());
         footer.setPanel(console);
@@ -71,7 +75,7 @@ public class HelpfulJavaEditor extends JavaEditor {
      */
     public void setErrorPage(String url) {
         footer.setPanel(hintsPanel);
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             if (!url.equals(webView.getEngine().getLocation())) {
                 webView.getEngine().load(url);
             }
@@ -205,7 +209,7 @@ public class HelpfulJavaEditor extends JavaEditor {
         hintsPanel = new JFXPanel();
         footer.addPanel(hintsPanel, "Hints", "/theme/footer/hint");
 
-        javafx.application.Platform.runLater(() -> {
+        Platform.runLater(() -> {
             webView = new WebView();
             hintsPanel.setScene(new Scene(webView));
         });
