@@ -71,6 +71,14 @@ public class ErrorURLAssembler {
     }
 
     /**
+     * Gets the base URL for all pages without parameters.
+     * @return  the base URL without parameters
+     */
+    public String getBaseUrl() {
+        return URL;
+    }
+
+    /**
      * Gets the default URL for the reference.
      * @return the default URL for the reference
      */

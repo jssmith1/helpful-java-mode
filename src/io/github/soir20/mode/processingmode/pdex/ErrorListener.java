@@ -54,7 +54,7 @@ public class ErrorListener {
      * @return whether an error page is available
      */
     public boolean hasPage() {
-        return !lastUrl.equals(URL_ASSEMBLER.getDefaultUrl());
+        return !lastUrl.equals(URL_ASSEMBLER.getDefaultUrl()) && !lastUrl.startsWith(URL_ASSEMBLER.getBaseUrl() + "?");
     }
 
     /**

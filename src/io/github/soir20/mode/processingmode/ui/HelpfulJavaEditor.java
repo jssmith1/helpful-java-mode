@@ -69,12 +69,21 @@ public class HelpfulJavaEditor extends JavaEditor {
     }
 
     /**
-     * Sets the page currently displayed in the hints tab
+     * Sets the page currently displayed in the hints tab.
      * and makes the hints tab the active tab.
      * @param url       the URL to display
      */
     public void setErrorPage(String url) {
         footer.setPanel(hintsPanel);
+        setErrorPageSilently(url);
+    }
+
+    /**
+     * Sets the page currently displayed in the hints tab without changing tab.
+     * and makes the hints tab the active tab.
+     * @param url       the URL to display
+     */
+    public void setErrorPageSilently(String url) {
         Platform.runLater(() -> {
             if (!url.equals(webView.getEngine().getLocation())) {
                 webView.getEngine().load(url);
@@ -171,6 +180,11 @@ public class HelpfulJavaEditor extends JavaEditor {
         urlAssembler.setFontSize(Toolkit.zoom(
                 (int) Math.round(Preferences.getInteger("console.font.size") * dpiAdjustment)
         ));
+
+        if (!listener.hasPage()) {
+            listener.updateAvailablePage(urlAssembler.getDefaultUrl());
+            setErrorPageSilently(listener.getLastUrl());
+        }
     }
 
     /**
