@@ -2,13 +2,17 @@
 A Processing mode with more helpful error explanations for Processing 3.
 
 # Build
+## Prerequisites
+You must build the [Processing source](https://github.com/processing/processing) at least once before building the mode. See the Processing wiki's [build instructions](https://github.com/processing/processing/wiki/Build-Instructions).
+
+## Instructions
 helpful-java-mode uses Ant for builds. There are several build tasks available:
 * `build` - builds your mode and puts the output in the "dist" folder
 * `install` - builds your mode and places the output in your modes directory
 * `run` - builds and installs your mode and then starts Processing
 * `clean` - deletes the "build" and "dist" folders to clear all build output
 
-A more complete explanation of the build options available is at the [original template](https://github.com/soir20/processing-mode-template). In particular, you must build the Processing source at least once before building the mode.
+A more complete explanation of the build options available is at the [original template](https://github.com/soir20/processing-mode-template).
 
 ## IntelliJ Setup
 IntelliJ requires some additional setup to recognize the imports from the Processing source code correctly in its editor.
