@@ -1,7 +1,7 @@
-package io.github.soir20.mode.processingmode.ui;
+package io.github.soir20.mode.helpfuljava.ui;
 
-import io.github.soir20.mode.processingmode.pdex.ErrorURLAssembler;
-import io.github.soir20.mode.processingmode.pdex.ErrorListener;
+import io.github.soir20.mode.helpfuljava.pdex.ErrorURLAssembler;
+import io.github.soir20.mode.helpfuljava.pdex.ErrorListener;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;

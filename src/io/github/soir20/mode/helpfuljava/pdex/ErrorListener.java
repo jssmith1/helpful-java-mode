@@ -1,4 +1,4 @@
-package io.github.soir20.mode.processingmode.pdex;
+package io.github.soir20.mode.helpfuljava.pdex;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;

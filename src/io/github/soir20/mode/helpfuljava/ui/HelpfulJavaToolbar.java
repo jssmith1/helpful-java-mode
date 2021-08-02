@@ -1,6 +1,6 @@
-package io.github.soir20.mode.processingmode.ui;
+package io.github.soir20.mode.helpfuljava.ui;
 
-import io.github.soir20.mode.processingmode.pdex.ErrorListener;
+import io.github.soir20.mode.helpfuljava.pdex.ErrorListener;
 import processing.app.ui.Editor;
 import processing.app.ui.EditorButton;
 import processing.mode.java.JavaToolbar;
