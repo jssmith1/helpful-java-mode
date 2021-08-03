@@ -863,6 +863,10 @@ public class ErrorURLAssembler {
      */
     private String getTypeFromMethodInvocation(String varName, ASTNode methodInvocation) {
         MethodInvocation invocation = (MethodInvocation) methodInvocation;
+        if (invocation.resolveMethodBinding() == null) {
+            return "Object";
+        }
+
         List<String> requiredParamTypes = Arrays.stream(
                 invocation.resolveMethodBinding().getParameterTypes()
         ).map(ITypeBinding::getName).collect(Collectors.toList());
