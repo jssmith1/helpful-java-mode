@@ -9,6 +9,7 @@ import javafx.scene.web.WebView;
 import processing.app.Base;
 import processing.app.Mode;
 import processing.app.Preferences;
+import processing.app.Problem;
 import processing.app.SketchException;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorFooter;
@@ -93,6 +94,18 @@ public class HelpfulJavaEditor extends JavaEditor {
                 webView.getEngine().load(url);
             }
         });
+    }
+
+    /**
+     * Checks for an error page update when the editor status bar is updated.
+     */
+    @Override
+    public void updateEditorStatus() {
+        super.updateEditorStatus();
+        Problem currentProblem = findProblem(textarea.getCaretLine());
+        if (currentProblem != null) {
+            listener.updateAvailablePage(currentProblem);
+        }
     }
 
     /**

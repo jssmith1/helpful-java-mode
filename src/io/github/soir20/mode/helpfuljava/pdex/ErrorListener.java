@@ -12,7 +12,9 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import processing.app.Problem;
 import processing.mode.java.pdex.ASTUtils;
+import processing.mode.java.pdex.ErrorMessageSimplifier;
 import processing.mode.java.pdex.PreprocessedSketch;
 
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class ErrorListener {
     private final List<Consumer<String>> LISTENERS;
     private final ErrorURLAssembler URL_ASSEMBLER;
     private String lastUrl;
+    private PreprocessedSketch lastSketch;
 
     /**
      * Creates a new listener.
@@ -68,11 +71,29 @@ public class ErrorListener {
     }
 
     /**
+     * Updates the available page if there is one associated with the given problem.
+     * @param problem   the problem to make a page available for
+     */
+    public void updateAvailablePage(Problem problem) {
+        IProblem[] compilerErrors = lastSketch.compilationUnit.getProblems();
+
+        Optional<IProblem> matchingRawProblem = Arrays.stream(compilerErrors).filter(
+                (rawProblem) -> problemEquals(problem, rawProblem, lastSketch)
+        ).findFirst();
+
+        if (matchingRawProblem.isPresent()) {
+            Optional<String> errorUrl = getErrorPageUrl(matchingRawProblem.get(), lastSketch.compilationUnit);
+            errorUrl.ifPresent(this::updateAvailablePage);
+        }
+    }
+
+    /**
      * Sets the available page during preprocessing. Serves as a listener for
      * the {@link processing.mode.java.pdex.PreprocessingService}. Fires all listeners.
      * @param sketch        the preprocessed sketch
      */
     public void updateAvailablePage(PreprocessedSketch sketch) {
+        lastSketch = sketch;
         IProblem[] compilerErrors = sketch.compilationUnit.getProblems();
         updateAvailablePage(
                 Arrays.stream(compilerErrors).filter(
@@ -179,6 +200,48 @@ public class ErrorListener {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Tests if a problem already processed by the error checker and a raw problem are likely the same
+     * @param processedProblem      the problem processed by the error checker
+     * @param rawProblem            the raw problem from the compiler
+     * @param sketch                the current sketch
+     * @return whether the two problems are likely the same issue
+     */
+    private boolean problemEquals(Problem processedProblem, IProblem rawProblem, PreprocessedSketch sketch) {
+        PreprocessedSketch.SketchInterval rawProblemInterval = sketch.mapJavaToSketch(rawProblem);
+        if (rawProblemInterval == PreprocessedSketch.SketchInterval.BEFORE_START) {
+            return false;
+        }
+
+        String processedProblemCode = getPdeSnippet(
+                sketch.pdeCode,
+                processedProblem.getStartOffset(),
+                processedProblem.getStopOffset()
+        );
+        String rawProblemCode = sketch.getPdeCode(rawProblemInterval);
+        boolean isSameCode = processedProblemCode.equals(rawProblemCode);
+
+        boolean isSameMessage = processedProblem.getMessage().equals(
+                ErrorMessageSimplifier.getSimplifiedErrorMessage(rawProblem, rawProblemCode)
+        );
+
+        return isSameCode && isSameMessage;
+    }
+
+    /**
+     * Gets a code snippet from problem offsets.
+     * @param fullPdeCode   the full code inside the editor
+     * @param startOffset   the start offset of the snippet
+     * @param endOffset     the end offset of the snippet
+     * @return the code snippet from the editor
+     */
+    private String getPdeSnippet(String fullPdeCode, int startOffset, int endOffset) {
+        if (startOffset == -1 || endOffset == -1) return "";
+        int stop = Math.min(endOffset, fullPdeCode.length());
+        int start = Math.min(startOffset, stop);
+        return fullPdeCode.substring(start, stop);
     }
 
 }
