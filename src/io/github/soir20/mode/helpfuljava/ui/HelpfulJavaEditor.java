@@ -66,6 +66,10 @@ public class HelpfulJavaEditor extends JavaEditor {
            create the listener and then register it once the preprocessing service
            has also been created. */
         updateListenerRegistration();
+
+        // Manually unload the page so its unload hooks are triggered on close
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> setErrorPageSilently("")));
+
     }
 
     /**
