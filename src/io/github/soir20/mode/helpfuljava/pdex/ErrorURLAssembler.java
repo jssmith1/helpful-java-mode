@@ -122,7 +122,7 @@ public class ErrorURLAssembler {
      * Gets the URL for an incorrect variable declaration.
      * @param textArea      text area for the file that contains the error
      * @param exception     incorrect declaration exception from compilation
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getIncorrectVarDeclarationURL(JEditTextArea textArea, SketchException exception) {
         int errorIndex = textArea.getLineStartOffset(exception.getCodeLine()) + exception.getCodeColumn() - 1;
@@ -171,7 +171,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for an incorrect variable declaration.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getIncorrectVarDeclarationURL(ASTNode problemNode) {
         Optional<VariableDeclarationFragment> fragmentOptional = findDeclarationFragment(problemNode);
@@ -192,7 +192,7 @@ public class ErrorURLAssembler {
      * Gets the URL for an incorrect method declaration.
      * @param textAboveError      all text in the editor at and above the
      *                            line with error
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getIncorrectMethodDeclarationURL(String textAboveError) {
         int lastOpenParenthesisIndex = textAboveError.lastIndexOf('(');
@@ -216,7 +216,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for a missing array dimension.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getArrDimURL(ASTNode problemNode) {
         Optional<VariableDeclarationFragment> fragmentOptional = findDeclarationFragment(problemNode);
@@ -235,7 +235,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL when the first of two array dimensions is missing.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getTwoDimArrURL(ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
@@ -255,7 +255,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for the use of two array initializers at once.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getTwoInitializerArrURL(ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
@@ -275,7 +275,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for a missing method.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingMethodURL(ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
@@ -315,7 +315,7 @@ public class ErrorURLAssembler {
      * Gets the URL for a parameter mismatch in a method call.
      * @param fileName          sketch where the method resides
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getParamMismatchURL(String fileName, ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
@@ -354,7 +354,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for a missing return statement in a method.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingReturnURL(ASTNode problemNode) {
         ASTNode parent = problemNode.getParent();
@@ -387,7 +387,7 @@ public class ErrorURLAssembler {
      * @param providedType      the type provided by the programmer
      * @param requiredType      the type required by the method
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getTypeMismatchURL(String providedType, String requiredType, ASTNode problemNode) {
         Optional<VariableDeclarationFragment> declaration = findDeclarationFragment(problemNode);
@@ -406,7 +406,7 @@ public class ErrorURLAssembler {
      * Gets the URL for a missing type.
      * @param missingType       name of the missing type
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingTypeURL(String missingType, ASTNode problemNode) {
         String varName = "example";
@@ -430,7 +430,7 @@ public class ErrorURLAssembler {
      * Gets the URL for a missing variable.
      * @param varName           name of the missing variable
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMissingVarURL(String varName, ASTNode problemNode) {
         String varType = trimType(getClosestExpressionType(varName, problemNode.getParent()));
@@ -441,7 +441,7 @@ public class ErrorURLAssembler {
      * Gets the URL for an uninitialized variable.
      * @param varName           name of the uninitialized variable
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getUninitializedVarURL(String varName, ASTNode problemNode) {
         String params = "?varname=" + varName;
@@ -454,7 +454,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for an unexpected type name.
      * @param typeName      the unexpected type name
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getUnexpectedTokenURL(String typeName) {
         if (!couldBeType(typeName)) {
@@ -469,7 +469,7 @@ public class ErrorURLAssembler {
      * @param fileName          name of the file where the error is located
      * @param nonStaticMethod   name of the non-static method
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getStaticErrorURL(String fileName, String nonStaticMethod, ASTNode problemNode) {
         String params = "?methodname=" + nonStaticMethod;
@@ -494,7 +494,7 @@ public class ErrorURLAssembler {
     /**
      * Gets the URL for a VariableDeclarators error.
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getVariableDeclaratorsURL(ASTNode problemNode) {
         String methodName = problemNode.toString();
@@ -515,7 +515,7 @@ public class ErrorURLAssembler {
      * @param type              the type of variable the method was invoked on
      * @param methodName        the name of the method that was invoked
      * @param problemNode       node of the AST where the problem occurred
-     * @return the the URL with path and parameters for the corresponding page
+     * @return the URL with path and parameters for the corresponding page
      */
     public Optional<String> getMethodCallWrongTypeURL(String type, String methodName, ASTNode problemNode) {
         String variableName = problemNode.toString();
@@ -568,7 +568,7 @@ public class ErrorURLAssembler {
     /**
      * Finds the index for a brace matching the one at the index provided.
      * @param code          code to search in
-     * @param startIndex    index where the the brace to find the match for is
+     * @param startIndex    index where the brace to find the match for is
      * @return the index of the matching brace or -1 if there is no matching brace
      */
     private int findMatchingBrace(String code, int startIndex) {
